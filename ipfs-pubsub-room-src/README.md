@@ -1,0 +1,1 @@
+The library is buggy and unmaintained, so if you want to fix it, just require('Room') from here and work on these source files instead of using ipfs-pubsub-room from npm

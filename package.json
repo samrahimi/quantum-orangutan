@@ -1,0 +1,20 @@
+{
+  "name": "quantum-orangutan",
+  "version": "0.1.0",
+  "description": "End to end decentralized solution for realtime video and sharing",
+  "main": "app.js",
+  "scripts": {
+    "start": "http-server -c-1 -p 12345 public",
+    "compile": "browserify src/index.js -o public/js/app.js -d",
+    "build": "browserify src/index.js -o public/js/app.min.js"
+  },
+  "author": "Sam Rahimi (sam@svn.im)",
+  "license": "MIT",
+  "dependencies": {
+    "browserify": "^16.2.3",
+    "http-server": "^0.11.1",
+    "ipfs": "^0.33.1",
+    "ipfs-pubsub-room": "^1.2.1",
+    "simple-peer": "^9.6.2"
+  }
+}
