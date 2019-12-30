@@ -12,19 +12,7 @@ const RTCManager = require('./rtcmanager')
 const ArweaveManager = require('./arweave')                                           
 const debug = console.log;
 
-const ipfs = new IPFS({
-  repo: repo(),
-  EXPERIMENTAL: {
-    pubsub: true
-  },
-  config: {
-    Addresses: {
-      Swarm: [
-        '/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star'
-      ]
-    }
-  }
-})
+var ipfs
 
 const announceRetryInterval = 5000
 const announce = (room) => {
@@ -118,11 +106,25 @@ const joinWhenConnectedToSwarm = (channel, userInfo, callback) =>
 //userInfo can be whatever you want... as long as the interface is consistent between users
 //listening on a given topic
 const start = (channelToJoin, userInfo, callback) => {
+  ipfs = new IPFS({
+    repo: repo(),
+    EXPERIMENTAL: {
+      pubsub: true
+    },
+    config: {
+      Addresses: {
+        Swarm: [
+          '/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star'
+        ]
+      }
+    }
+  })
+  console.log("connecting to ipfs bootstrap nodes")
   ipfs.once('ready', () => ipfs.id((err, info) => {
-    if (err) { throw err }
+    if (err) { console.error(err) }
     debug('IPFS node ready with address ' + info.id)
     userInfo.id = info.id //so we can filter out our own messages lol
-    const channel= APP_ID+  (channelToJoin || location.hash.substring(1))
+    const channel= APP_ID+channelToJoin
 
     joinWhenConnectedToSwarm(channel, userInfo, callback)
   }))

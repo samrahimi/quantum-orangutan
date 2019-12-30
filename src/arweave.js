@@ -5,13 +5,14 @@
     // expects Arweave JS SDK to be on window["Arweave"]
     // therefore you must include it with a script tag before you load the bundle (including this file)
     const arweaveSdk = window["Arweave"].init()
-
+    const PERMANENT_PERSONA_APP_ID = "persona.arweave"
     //Interacts with the arweave blockchain to handle simple database-like
     //tasks: login, get / create public channels, pin content, send money
     //appId: a unique namespace for your keys   
     class ArweaveManager {
         constructor(appId) {
             this._currentWallet = {address: '', balance: 0, keystore: null, rawJson: ''}
+            this._persona  = null
             this._allChannels = []
             this._currentChannel = {}   
             this.AR_APP_ID = appId
@@ -40,31 +41,66 @@
             return this._allChannels;
           }        
 
-          async getOrCreateChannel(channelName, creatorName) {
+        async getOrCreateChannel(channelName, creator) {
             var allChannels = await this.getAllChannels()
             if (allChannels.filter(channel => channel.name == channelName).length > 0) {
-              console.log("returning existing channel "+channelName)
-              this._currentChannel = allChannels.filter(channel => channel.name == name)[0]
-              this.currentChannel$.next(this._currentChannel) 
+                console.log("returning existing channel "+channelName)
+                this._currentChannel = allChannels.filter(channel => channel.name == name)[0]
+                this.currentChannel$.next(this._currentChannel) 
             } else {
-              
-              var newChannel = {name: channelName, creator: creatorName, createdAt: (new Date()).getTime()}
-              this._currentChannel = newChannel
-              this.currentChannel$.next(this._currentChannel)
+                
+                var newChannel = {name: channelName, creator: creator, createdAt: (new Date()).getTime()}
+                this._currentChannel = newChannel
+                this.currentChannel$.next(this._currentChannel)
         
-              console.log("created new channel "+channelName+", submitting in background")
-              var tx = await this.arweaveSdk.createTransaction({data: JSON.stringify(newChannel)}, this._currentWallet.keystore)
+                console.log("created new channel "+channelName+", submitting in background")
+                var tx = await this.arweaveSdk.createTransaction({data: JSON.stringify(newChannel)}, this._currentWallet.keystore)
         
-              tx.addTag('Content-Type', 'text/plain')
-              tx.addTag('AR_APP_ID', this.AR_APP_ID)
-              tx.addTag('type', 'channel')
+                tx.addTag('Content-Type', 'text/plain')
+                tx.addTag('AR_APP_ID', this.AR_APP_ID)
+                tx.addTag('type', 'channel')
         
-              await this.arweaveSdk.transactions.sign(tx, this._currentWallet.keystore)
-              console.log(JSON.stringify(tx))
-              var response = await this.arweaveSdk.transactions.post(tx)
-              console.log(JSON.stringify(response))
+                await this.arweaveSdk.transactions.sign(tx, this._currentWallet.keystore)
+                console.log(JSON.stringify(tx))
+                var response = await this.arweaveSdk.transactions.post(tx)
+                console.log(JSON.stringify(response))
             }
-          }
+        }
+
+        async createPermanentPersona(name, profile) {
+            var persona = {name: name, address: this._currentWallet.address, profile: profile}
+            var tx = await this.arweaveSdk.createTransaction({data: JSON.stringify(persona)}, this._currentWallet.keystore)
+            tx.addTag('Content-Type', 'text/plain')
+            tx.addTag('AR_APP_ID', PERMANENT_PERSONA_APP_ID)
+            tx.addTag('type', 'persona')
+            tx.addTag('publickey', this._currentWallet.address)
+
+            await this.arweaveSdk.transactions.sign(tx, this._currentWallet.keystore)
+            console.log(JSON.stringify(tx))
+            var response = await this.arweaveSdk.transactions.post(tx)
+            console.log(JSON.stringify(response))
+            
+            this._persona = persona
+            return persona;
+        }
+
+        //by default will lookup the Permanent Persona associated with this._currentWallet.address
+        //this is a public user profile that has a unique name and maps 1:1 with a wallet address
+        async getPermanentPersona(walletAddress) {
+            const query = and(  
+                equals('AR_APP_ID', PERMANENT_PERSONA_APP_ID),
+                equals('type', 'persona'),
+                equals('publicKey', walletAddress || this._currentWallet.address)
+              )
+              const txids = await this.arweaveSqk.arql(query)
+              if (txids.length == 0) 
+                  this.persona = null
+              else
+                {
+                    var tx = await this.arweaveSdk.transactions.get(txid)
+                    this._persona=JSON.parse(tx.get('data', {decode: true, string: true}))     
+                }
+        }
         
         loginWithWalletString(walletJson, cb) {
             try {

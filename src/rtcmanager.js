@@ -9,28 +9,6 @@ const peerConfig =
 {
     "iceServers":[
           {"urls":["stun:173.194.196.127:19302","stun:[2607:f8b0:4001:c1a::7f]:19302"]},
-          {
-            "urls": [
-              "turn:64.233.191.127:19305?transport=udp",
-              "turn:[2607:f8b0:4001:c0c::7f]:19305?transport=udp",
-              "turn:64.233.191.127:19305?transport=tcp",
-              "turn:[2607:f8b0:4001:c0c::7f]:19305?transport=tcp"
-            ],
-            "username": "CJCxpfAFEgZL6Lp9IHoYzc/s6OMTIICjBQ",
-            "credential": "4gm56ONucHJm/aG9zUR2XLtUQ04=",
-            "maxRateKbps": "8000"
-          },
-          {
-            "urls": [
-              "turn:173.194.196.127:19305?transport=udp",
-              "turn:[2607:f8b0:4001:c1a::7f]:19305?transport=udp",
-              "turn:173.194.196.127:19305?transport=tcp",
-              "turn:[2607:f8b0:4001:c1a::7f]:19305?transport=tcp"
-            ],
-            "username": "CIWypfAFEgbPTJ/uio4Yzc/s6OMTIICjBQ",
-            "credential": "Ir3Zt0pLnBSjo9+TXhkgQ2hL/fY=",
-            "maxRateKbps": "8000"
-          }
       ]
 }
 
@@ -44,6 +22,18 @@ class RTCManager extends EventEmitter {
                    //and the webrtc connection they have with me
                    //everyone sends their "me" when requesting or accepting a connection
     }
+
+     sendToAll(message)  {
+      var peerConnections = this.getConnectedPeers()
+      peerConnections.forEach(connectedPeer => {
+        connectedPeer.send(message)
+      })
+    }
+
+    send(peerId, message){
+      this.Peers[peerId].connection.send(message)
+    }
+
     requestConnection(user) {
       if (this.Peers[user]) 
       {
@@ -162,14 +152,19 @@ class RTCManager extends EventEmitter {
       this.Peers[from].peerInfo = payload.peerInfo
       this.Peers[from].initiator.signal(payload.signaling)
     }
-    getRtcPeers() {
-      /*
-      for (let key in this.Peers){
-        if(obj.hasOwnProperty(key)){
-          console.log(`${key} : ${obj[key]}`)
+
+    //returns all Peers that are currently connected
+    getConnectedPeers() {
+      var peers = this.Peers
+      var p=[]
+
+      for (let key in peers){
+        if(peers.hasOwnProperty(key)){
+          p.push(peers[key])
         }
-      } */
-      return this.Peers
+      }
+
+      var peerConnections = p.filter(x => x.connection && x.connection != null).map(y => y.connection)
     }
   }
   
