@@ -11,6 +11,7 @@
   "author": "Sam Rahimi (sam@svn.im)",
   "license": "MIT",
   "dependencies": {
+    "arql-ops": "^1.0.0",
     "browserify": "^16.2.3",
     "http-server": "^0.11.1",
     "ipfs": "^0.33.1",

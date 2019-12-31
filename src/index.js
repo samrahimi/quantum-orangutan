@@ -43,20 +43,11 @@ const joinChannel = (channel, userInfo, callback) => {
      * in the "to" field of message.data; the code below parses and filters 
      * incoming messages, and only handles those addressed to the current client 
      * 
-     * Keep in mind that this is not secure, given that we're exchanging detailed
-     * information about each client's external AND internal IPs and firewall config.
-     * An exercise for the reader is to leverage Arweave or another blockchain to 
-     * encrypt the messages with the recipients's public key (which is their address on the blockchain)
-     * That way, only the intended recipient can decrypt the message, because they have the 
-     * private key in their wallet
-     * 
-     * Due to the lack of security and the high latency of IPFS pubsub, 
-     * we are using this network ONLY for peer discovery and exchange of metadata
-     * needed to setup direct p2p connections between the peers: when a client joins a 
-     * channel, they are connected directly to each of the clients listening on the channel. 
-     * This allows the formation of a webrtc P2P mesh network for each channel 
-     * that is totally self contained and secure, allowing clients to exchange data 
-     * without any external dependencies once connected */
+     * IMPORTANT: for production, we need to encrypt the signaling messages 
+     * sent over ipfs, which can be done using the user's wallets,
+     * However, once the RTC connection is established, all p2p traffic 
+     * is encrypted end to end. 
+     *  */
     room.on("message", (message) => {
       if (message.from == userInfo.id) {
         debug("ignoring broadcast message from self")
@@ -80,9 +71,14 @@ const joinChannel = (channel, userInfo, callback) => {
     })
   })
 
-
+  //sometimes this fires before the associated RTCPeerConnection knows it's dead
+  //try to put it out of its misery, and move on ;)
   room.on('peer left', (peer) => {
     debug('ipfs peer ' + peer + ' left...')
+    try {
+      rtcManager.Peers[peer].connection.destroy()
+      delete rtcManager.Peers[peer]
+    } catch (err) {}
   })
   callback({room, rtcManager, ipfs})
 }

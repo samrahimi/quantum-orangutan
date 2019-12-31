@@ -23,10 +23,19 @@ class RTCManager extends EventEmitter {
                    //everyone sends their "me" when requesting or accepting a connection
     }
 
+    //once you know which of the peers got connected, send them here to 
+    //bind close/end/destroy
+    addErrorHandlers(peer) {
+      peer.connection.on('close', () => delete this.Peers[peer.id])
+      peer.connection.on('end', () => delete this.Peers[peer.id])
+      peer.connection.on('destroy', () => delete this.Peers[peer.id])
+    }
+
      sendToAll(message)  {
       var peerConnections = this.getConnectedPeers()
       peerConnections.forEach(connectedPeer => {
-        connectedPeer.send(message)
+        if (connectedPeer.connected)
+          connectedPeer.send(message)
       })
     }
 
@@ -69,7 +78,7 @@ class RTCManager extends EventEmitter {
         console.log("rtc connection complete with "+user+" (as initiator)")
         this.Peers[user].connection = initiator
         this.Peers[user].connection.send("CONNECT")
-
+        this.addErrorHandlers(this.Peers[user])
         this.emit('peer_connected', this.Peers[user].peerInfo || null)
 
       })
@@ -126,6 +135,7 @@ class RTCManager extends EventEmitter {
         
             console.log("rtc connection complete with "+from+" (as receiver)")
             this.Peers[from].connection = receiver
+            this.addErrorHandlers(this.Peers[from])
 
             this.emit('peer_connected', this.Peers[from].peerInfo || null)
         } else {
@@ -165,6 +175,7 @@ class RTCManager extends EventEmitter {
       }
 
       var peerConnections = p.filter(x => x.connection && x.connection != null).map(y => y.connection)
+      return peerConnections;
     }
   }
   
