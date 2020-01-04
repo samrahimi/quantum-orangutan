@@ -5,11 +5,36 @@ module.exports = (room, me) => {
 const RTCPeer = require('simple-peer')
 const EventEmitter = require('events');
 
+//a few public bootstrap nodes to help punch through your firewall and 
+//get you connected p2p... 
+//feel free to add to this list
 const peerConfig =  
 {
     "iceServers":[
-          {"urls":["stun:173.194.196.127:19302","stun:[2607:f8b0:4001:c1a::7f]:19302"]},
-      ]
+          {"urls":
+            ["stun:173.194.196.127:19302",
+             "stun:[2607:f8b0:4001:c1a::7f]:19302"
+            ]},
+          {
+            "urls": "stun:relay.instant.io:3478?transport=udp"
+          },
+          {
+            "urls": "turn:relay.instant.io:3478?transport=udp",
+            "username": "relay.instant.io",
+            "credential": "nepal-cheddar-baize-oleander"
+          },
+          {
+            "urls": "turn:relay.instant.io:3478?transport=tcp",
+            "username": "relay.instant.io",
+            "credential": "nepal-cheddar-baize-oleander"
+          },
+          {
+            "urls": "turn:relay.instant.io:443?transport=tcp",
+            "username": "relay.instant.io",
+            "credential": "nepal-cheddar-baize-oleander"
+          }
+      
+        ]
 }
 
 class RTCManager extends EventEmitter {

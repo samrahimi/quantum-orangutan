@@ -8,6 +8,10 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">    
         <style>
           .hidden {display:none}
+          #messages {
+            height:55vh;color:#333!important;overflow:auto
+          }
+          .videostream {width:18%}
 
         </style>
         <script src="https://unpkg.com/arweave/bundles/web.bundle.js"></script>
@@ -55,11 +59,29 @@
     </div>
   
     <div class="container-fluid hidden logged-in" id="main">
-      <h2 id="channelName"></h2>
+      <nav class="navbar navbar-light bg-light justify-content-between">
+        <h2 id="channelName"></h2>
 
-      <div class="row">
+        <!-- Show current login status and available top level actions -->
+        <form class="form-inline logged-in hidden">
+          <a class="persona-link" target="_blank" href="https://viewblock.io/arweave/tx/">@username (Click To Verify)</a>&nbsp;&nbsp;
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+            Create Channel
+          </button>
+          <button class="btn btn-outline-success my-2 my-sm-0" type="button" id="logout">Log Out</button>
+        </form>
+        <form class="form-inline logged-out">
+          @<span class="persona-username"></span> (Not Logged In)&nbsp;&nbsp;
+
+          <button class="btn btn-outline-success my-2 my-sm-0" type="button" id="logout">Log Out</button>
+        </form>
+
+      </nav>
+      
+
+      <div class="row pt-2">
         <div class="col-7">
-          <div style="height:500px;overflow:auto" id="messages">
+          <div id="messages" class="card mb-2">
             <p>
               <b>Serverless Host: </b>welcome to the decentralized playground where anything is possible.
               This is true end to end serverless videoconferencing: Arweave-IPFS-WebRTC style <br /><br />
@@ -70,23 +92,66 @@
           </div>
 
             <div class="form-row">
-              <div class="col-8">
+              <div class="col-10">
                 <input type="text" class="form-control" id="outgoing" placeholder="Speak your mind..."  />   
               </div>
-              <div class="col-3">
-                <button type="button" id="sendMessage" class="btn btn-primary mb-2">Send Message</button>
+              <div class="col-2">
+                <button type="button" id="sendMessage" class="btn btn-primary mb-2">Send</button>
               </div>
             </div>
           
         </div>
         <div class="col-4" >
-          <b>All Channels</b>
+          <b>Channel Guide</b>
+
+          <!-- Open Create Channel Dialog -->
+
+          <!-- Create Channel -->
+          <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"  aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Create New Channel</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div style="text-align:center"><p><b>Coming Soon!</b></p></div>
+
+                  <div style="display:none">
+                    <div class="form-row">
+                      <div class="col-md-auto">
+                        <input type="text" class="form-control" id="outgoing" placeholder="Channel Name"  />   
+                      </div>
+                    </div>      
+                    <div class="form-row">
+                      <div class="col-md-auto">
+                        <input type="text" class="form-control" id="outgoing" placeholder="Short Description (optional)"  />   
+                      </div>
+                    </div>      
+
+                  <div class="col-3">
+                    <button type="button" id="sendMessage" class="btn btn-primary mb-2">Send Message</button>
+                  </div>
+                </div>
+
+                </div>
+
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <ul class="list-group" id="channels">
           </ul>
           
         </div>
       </div>
-
+      <style>
+      </style>
       <!-- video filmstrip goes in here -->
       <div class="row" id="users"></div>
   
@@ -120,8 +185,9 @@
       }
       const addStreamToUI=(livestream, name, peerId) => {
         var template=`
-          <div class="videostream col" id="stream_${name}">
-              <video id="video_${name}" autoplay muted width="320"></video><br />
+          <div class="videostream col-md-auto" id="stream_${name}">
+              <video class="live_video_player" id="video_${name}" autoplay controls ${peerId && peerId == "ME" ? "muted" : ""} width="100%"></video>
+              <br />
               <b>${name}</b>
           </div>
         `
@@ -169,7 +235,8 @@
         // that will be attached to the p2p connections we make in the channel
         navigator.getUserMedia({ video: true, audio: true }, (localStream) => {
             window["RTC_OUTBOUND_STREAM"] = localStream
-            addStreamToUI(localStream, userInfo.name)
+
+            addStreamToUI(localStream, userInfo.name, "ME")
 
             ServerlessSignalHub.init(channelName, 
                   userInfo, 

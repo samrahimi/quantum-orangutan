@@ -108,6 +108,7 @@
                 {
                     this.arweaveSdk.transactions.get(txids[0]).then(tx => {
                         this._persona=JSON.parse(tx.get('data', {decode: true, string: true}))     
+                        this._persona.txid=txids[0]
                         cb(this._persona)
                     })
                 }
