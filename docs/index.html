@@ -1,0 +1,331 @@
+<html>
+  <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">    
+        <style>
+          .hidden {display:none}
+          #messages {
+            height:55vh;color:#333!important;overflow:auto
+          }
+          .videostream {width:18%}
+
+        </style>
+        <script src="https://unpkg.com/arweave/bundles/web.bundle.js"></script>
+
+  </head>
+  <body>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    
+    <div class="container logged-out" id="login">
+      <div class="jumbotron" style="margin-top:150px">
+        <h1 class="display-4">ArTV - P2P on the Permanent Web</h1>
+        <p class="lead">Login With Arweave Wallet</p>
+        <hr class="my-4">
+        <p>Your wallet JSON file lets you create public channels and pin content on the blockchain.</p>
+        <p class="lead">
+          <input id="wallet-file" type="file" class="btn btn-primary btn-lg" href="#" role="button" /> 
+          or <a href="#" id="no-login">Continue Without Login</a>
+        </p>
+
+        <div class="hidden" id="signup">
+          <form id="persona">
+            <div class="form-row">               
+               <input type="text" id="persona-name" class="form-control"  placeholder="Choose a username (e.g. lolhamster420)"  />   
+            </div>
+            <div class="form-row">
+              <input type="text" id="persona-description" class="form-control"  placeholder="Short description (e.g. Sam Rahimi from Toronto)"  />   
+            </div>
+            <div class="form-row">
+              <div class="col-7">
+                <i>
+                  By submitting this form, I understand that I am creating a permanent record containing: my arweave wallet address, my chosen username, 
+                  and an optional description. Please note that your username will also be your default channel name (you can make more channels later). 
+                  It will take a few minutes before you show up in the channel guide, but you can use the app immediately. 
+                </i>
+              </div>
+              <div class="col-3">
+                <button type="button" id="create-persona" class="btn btn-primary mb-2">Create Persona</button>
+              </div>
+
+            </div>
+          </form>
+
+        </div>
+      </div>      
+    </div>
+  
+    <div class="container-fluid hidden logged-in" id="main">
+      <nav class="navbar navbar-light bg-light justify-content-between">
+        <h2 id="channelName"></h2>
+
+        <!-- Show current login status and available top level actions -->
+        <form class="form-inline logged-in hidden">
+          <a class="persona-link" target="_blank" href="https://viewblock.io/arweave/tx/">@username (Click To Verify)</a>&nbsp;&nbsp;
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+            Create Channel
+          </button>
+          <button class="btn btn-outline-success my-2 my-sm-0" type="button" id="logout">Log Out</button>
+        </form>
+        <form class="form-inline logged-out">
+          @<span class="persona-username"></span> (Not Logged In)&nbsp;&nbsp;
+
+          <button class="btn btn-outline-success my-2 my-sm-0" type="button" id="logout">Log Out</button>
+        </form>
+
+      </nav>
+      
+
+      <div class="row pt-2">
+        <div class="col-7">
+          <div id="messages" class="card mb-2">
+            <p>
+              <b>Serverless Host: </b>welcome to the decentralized playground where anything is possible.
+              This is true end to end serverless videoconferencing: Arweave-IPFS-WebRTC style <br /><br />
+
+              Please wait a few seconds to join the swarm and connect to peers.
+            </p>
+
+          </div>
+
+            <div class="form-row">
+              <div class="col-10">
+                <input type="text" class="form-control" id="outgoing" placeholder="Speak your mind..."  />   
+              </div>
+              <div class="col-2">
+                <button type="button" id="sendMessage" class="btn btn-primary mb-2">Send</button>
+              </div>
+            </div>
+          
+        </div>
+        <div class="col-4" >
+          <b>Channel Guide</b>
+
+          <!-- Open Create Channel Dialog -->
+
+          <!-- Create Channel -->
+          <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"  aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Create New Channel</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div style="text-align:center"><p><b>Coming Soon!</b></p></div>
+
+                  <div style="display:none">
+                    <div class="form-row">
+                      <div class="col-md-auto">
+                        <input type="text" class="form-control" id="outgoing" placeholder="Channel Name"  />   
+                      </div>
+                    </div>      
+                    <div class="form-row">
+                      <div class="col-md-auto">
+                        <input type="text" class="form-control" id="outgoing" placeholder="Short Description (optional)"  />   
+                      </div>
+                    </div>      
+
+                  <div class="col-3">
+                    <button type="button" id="sendMessage" class="btn btn-primary mb-2">Send Message</button>
+                  </div>
+                </div>
+
+                </div>
+
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <ul class="list-group" id="channels">
+          </ul>
+          
+        </div>
+      </div>
+      <style>
+      </style>
+      <!-- video filmstrip goes in here -->
+      <div class="row" id="users"></div>
+  
+    </div>
+    
+
+
+    <script src="js/app.min.js"></script>
+    <script>
+      var RTCManager, Room, arweaveManager
+      var ActiveStreams = {}
+      var currentUser = {}
+      const APP_ID = "im.svn.rtc."
+
+      const sendToAll = (message) => {
+        RTCManager.sendToAll(message)
+        /*
+        var peers = RTCManager.Peers
+        var p=[]
+
+        for (let key in peers){
+          if(peers.hasOwnProperty(key)){
+            p.push(peers[key])
+          }
+        }
+
+        var peerConnections = p.filter(x => x.connection && x.connection != null).map(y => y.connection)
+        peerConnections.forEach(connectedPeer => {
+          connectedPeer.send(message)
+        }) */
+      }
+      const addStreamToUI=(livestream, name, peerId) => {
+        var template=`
+          <div class="videostream col-md-auto" id="stream_${name}">
+              <video class="live_video_player" id="video_${name}" autoplay controls ${peerId && peerId == "ME" ? "muted" : ""} width="100%"></video>
+              <br />
+              <b>${name}</b>
+          </div>
+        `
+
+         //ignore duplicate onstream events from rtc stack
+          if (ActiveStreams[name]) {
+            return false
+          }
+          ActiveStreams[name] = true;
+
+          $("#users").append(template)
+
+          var video = document.querySelector('#video_'+name)
+
+          if ('srcObject' in video) {
+            video.srcObject = livestream
+          } else {
+            video.src = window.URL.createObjectURL(livestream) // for older browsers
+          }
+          video.onload = (() => video.play())
+      }
+      const showCreateProfileUI = () => {
+        $("#signup").show();
+        $("#create-persona").on("click", async(e) => {
+          e.preventDefault()
+          var persona = await arweaveManager.createPermanentPersona(
+            $("#persona-name").val(), 
+            {
+              description: $("#persona-description").val(),
+              timestamp: Date.now()
+            })
+            arweaveManager.getOrCreateChannel(persona.name, persona)
+
+            doLogin(persona)
+        })
+        return false
+      }
+      const openChannel= (userInfo, channel) => {
+        var channelName = channel
+        $("#channelName").html("#"+channelName)
+
+
+        // open the camera and mic, display your local video, and
+        // create a global reference to your outbound video stream
+        // that will be attached to the p2p connections we make in the channel
+        navigator.getUserMedia({ video: true, audio: true }, (localStream) => {
+            window["RTC_OUTBOUND_STREAM"] = localStream
+
+            addStreamToUI(localStream, userInfo.name, "ME")
+
+            ServerlessSignalHub.init(channelName, 
+                  userInfo, 
+                  (hooks) => {
+                    RTCManager = hooks.rtcManager
+                    Room = hooks.Room
+                    
+                    RTCManager.on("peer_connected", (peer) => {
+                      $("#messages").append(`<p><i>System message: peer ${JSON.stringify(peer, null, 2)} has joined the network!</i></p>`)
+                      //$("#users").append(peer.name+"<br />")
+                    })
+                    
+                    //can it really be this easy???
+                    RTCManager.on("peer_video_received", (info) => {
+                      if (info.peer.name != userInfo.name)
+                        addStreamToUI(info.stream, info.peer.name, info.peer.id)
+                      //$("#users").append(peer.name+"<br />")
+                    })
+
+                    RTCManager.on("peer_data_received", (data) => {
+                      var name = data.peer.name
+                      var msg = data.data
+                      $("#messages").append(`<p><b>${name}</b>: ${msg}</p>`)
+                    })
+
+                    $("#sendMessage").on("click", (e) => {
+                      sendToAll($("#outgoing").val())
+                      $("#messages").append(`<p><b>${userInfo.name}</b>: ${$("#outgoing").val()}</p>`)
+                      $("#outgoing").val("")
+                      e.preventDefault()
+                      return false;
+                    })
+          })
+        }, () => {})
+
+      }
+      const populateChannels = () => {
+        arweaveManager._allChannels.forEach(c => {
+          $("#channels").append(`<li class="list-group-item"><a href="#${c.name}">#${c.name}</a></li>`)
+        })
+      }
+      const doLogin = async(user, channelToJoin) => {
+        $(".logged-out").hide()
+        $(".logged-in").show()
+        window.currentUser = user
+        var allChannels=await arweaveManager.getAllChannels()
+        populateChannels(allChannels)
+        openChannel(window.currentUser, channelToJoin || "lobby")
+      }
+      const anonymousLogin = () => {
+        var name = prompt("Pick a temporary username")
+        doLogin({name: name})
+      }
+
+      $(document).ready(() => {   
+        window.arweaveManager = ServerlessSignalHub.arweaveManager(APP_ID)
+        $("#wallet-file").on("change", (e) => {
+          const selectedFile = document.querySelector('#wallet-file').files[0];
+
+          arweaveManager.loginWithWalletFile(selectedFile, (wallet) => {
+            console.log(JSON.stringify(wallet))
+            arweaveManager.getPermanentPersona(wallet.address, (persona) =>{
+              if (persona == null) {
+              showCreateProfileUI()
+              } else {
+                  console.log("got persona from blockchain: "+persona)
+                  alert("Signed in as "+persona.name)
+                  localStorage.setItem("AR_PERMANENT_PERSONA", persona)
+                  doLogin(persona)
+              }
+            })
+          })
+          return false;
+        })
+
+        $("#no-login").on("click", (e) => {
+          anonymousLogin()
+          e.preventDefault()
+        })
+
+      })
+
+    </script>
+
+
+
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    
+  </body>
+</html>
