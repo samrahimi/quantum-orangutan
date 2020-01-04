@@ -4,21 +4,25 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
-        <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">    
         <style>
           .hidden {display:none}
           #messages {
-            height:55vh;color:#333!important;overflow:auto
+            height:55vh;color:#333 !important;overflow:auto
           }
           .videostream {width:18%}
 
         </style>
-        <script src="https://unpkg.com/arweave/bundles/web.bundle.js" crossorigin="anonymous"></script>
+        <script src="js/arweave.sdk.js"></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+
+        <script src="js/app.min.js"></script>
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">    
+
 
   </head>
   <body>
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     
     <div class="container logged-out" id="login">
       <div class="jumbotron" style="margin-top:150px">
@@ -159,7 +163,6 @@
     
 
 
-    <script src="js/app.min.js"></script>
     <script>
       var RTCManager, Room, arweaveManager
       var ActiveStreams = {}
@@ -185,7 +188,7 @@
       }
       const addStreamToUI=(livestream, name, peerId) => {
         var template=`
-          <div class="videostream col-md-auto" id="stream_${name}">
+          <div class="videostream col-md-auto" style="width:18%" id="stream_${name}">
               <video class="live_video_player" id="video_${name}" autoplay controls ${peerId && peerId == "ME" ? "muted" : ""} width="100%"></video>
               <br />
               <b>${name}</b>
