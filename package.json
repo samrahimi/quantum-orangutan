@@ -6,7 +6,7 @@
   "scripts": {
     "start": "http-server -c-1 -p 12345 public",
     "compile": "browserify src/index.js -o public/js/app.js -d",
-    "build": "browserify src/index.js -o public/js/app.min.js"
+    "build": "browserify src/index.js -o docs/js/app.min.js"
   },
   "author": "Sam Rahimi (sam@svn.im)",
   "license": "MIT",
