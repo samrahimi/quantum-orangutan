@@ -6,16 +6,19 @@
   "scripts": {
     "start": "http-server -c-1 -p 12345 docs",
     "compile": "browserify src/index.js -o public/js/app.js -d",
-    "build": "browserify src/index.js -o docs/js/app.min.js"
+    "build": "browserify -g uglifyify  src/index.js -o docs/js/app.js && uglifyjs -c docs/js/app.js"
   },
   "author": "Sam Rahimi (sam@svn.im)",
   "license": "MIT",
   "dependencies": {
     "arql-ops": "^1.0.0",
+    "arweave": "^1.6.0",
     "browserify": "^16.2.3",
     "http-server": "^0.11.1",
     "ipfs": "^0.33.1",
     "ipfs-pubsub-room": "^1.2.1",
-    "simple-peer": "^9.6.2"
+    "minimist": "^1.2.0",
+    "simple-peer": "^9.6.2",
+    "uglifyify": "^5.0.2"
   }
 }

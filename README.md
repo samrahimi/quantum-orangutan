@@ -5,6 +5,10 @@ thanks to a distributed signaling solution that uses ipfs-pubsub as a transport.
 Note that the bundle is ~7 megs because you're running a full libp2p and ipfs stack 
 in your browser :)
 
+# Live Demo 
+
+https://arweave.net/eJXM-idMQ2oRzJtVKGVcW62UUG20dMwt5Mos7hNt-Lk
+
 ## Pre-requisites
 
 * Most recent stable version of Node and npm
@@ -35,7 +39,7 @@ down the tree, into public/app.js - which lets any UI code communicate with the 
 $ npm run-script build
 ```
 
-Leaves out the debug symbols, resulting in a 3x smaller bundle. Which is still way too big :P
+Creates a minified build, which is still very large. You can look at deploy-app-js.js for the beginning of a toolchain for deploying this to arweave :)  
 
 ## Run
 
