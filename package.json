@@ -4,9 +4,11 @@
   "description": "End to end decentralized solution for realtime video and sharing",
   "main": "app.js",
   "scripts": {
-    "start": "http-server -c-1 -p 12345 docs",
+    "start": "http-server -c-1 -p 12345 public",
     "compile": "browserify src/index.js -o public/js/app.js -d",
-    "build": "browserify -g uglifyify  src/index.js -o docs/js/app.js && uglifyjs -c docs/js/app.js"
+    "build": "browserify -g uglifyify  src/index.js -o docs/js/app.js && uglifyjs -c docs/js/app.js",
+    "test": "http-server -c-1 -p 12345 docs"
+
   },
   "author": "Sam Rahimi (sam@svn.im)",
   "license": "MIT",

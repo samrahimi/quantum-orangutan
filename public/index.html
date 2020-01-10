@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
         <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">    
+        <link rel="stylesheet" href="css/bootstrap4.css">    
         <style>
           .hidden {display:none}
           #messages {
@@ -14,11 +14,13 @@
           .videostream {width:18%}
 
         </style>
+        <script src="js/app.js"></script>
         <script src="https://unpkg.com/arweave/bundles/web.bundle.js"></script>
 
   </head>
   <body>
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    
     
     <div class="container logged-out" id="login">
       <div class="jumbotron" style="margin-top:150px">
@@ -42,9 +44,12 @@
             <div class="form-row">
               <div class="col-7">
                 <i>
-                  By submitting this form, I understand that I am creating a permanent record containing: my arweave wallet address, my chosen username, 
-                  and an optional description. Please note that your username will also be your default channel name (you can make more channels later). 
-                  It will take a few minutes before you show up in the channel guide, but you can use the app immediately. 
+                  By submitting this form, I understand that I am creating a permanent record containing: my arweave  address, my chosen username, 
+                  and an optional description. Please note that your username will also be your channel name (you can make more channels later). 
+
+                  It will take a few minutes for the changes to be 
+                  permanently written to the arweave, but you can 
+                  use your channel immediately. 
                 </i>
               </div>
               <div class="col-3">
@@ -64,16 +69,15 @@
 
         <!-- Show current login status and available top level actions -->
         <form class="form-inline logged-in hidden">
-          <a class="persona-link" target="_blank" href="https://viewblock.io/arweave/tx/">@username (Click To Verify)</a>&nbsp;&nbsp;
-          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-            Create Channel
-          </button>
-          <button class="btn btn-outline-success my-2 my-sm-0" type="button" id="logout">Log Out</button>
+          Logged In As: 
+          <a class="persona-link" target="_blank" href="#"></a>
+
+          <button class="btn btn-outline-success my-2 my-sm-0 login-refresh-btn" type="button" >Log Out</button>
         </form>
         <form class="form-inline logged-out">
-          @<span class="persona-username"></span> (Not Logged In)&nbsp;&nbsp;
+          <span class="persona-username"></span> (Guest User)&nbsp;&nbsp;
 
-          <button class="btn btn-outline-success my-2 my-sm-0" type="button" id="logout">Log Out</button>
+          <button class="btn btn-outline-success my-2 my-sm-0 login-refresh-btn" type="button" >Log In</button>
         </form>
 
       </nav>
@@ -159,7 +163,6 @@
     
 
 
-    <script src="js/app.js"></script>
     <script>
       var RTCManager, Room, arweaveManager
       var ActiveStreams = {}
@@ -185,7 +188,7 @@
       }
       const addStreamToUI=(livestream, name, peerId) => {
         var template=`
-          <div class="videostream col-md-auto" id="stream_${name}">
+          <div class="videostream col-md-auto" style="width:18%" id="stream_${name}">
               <video class="live_video_player" id="video_${name}" autoplay controls ${peerId && peerId == "ME" ? "muted" : ""} width="100%"></video>
               <br />
               <b>${name}</b>
@@ -226,8 +229,10 @@
         return false
       }
       const openChannel= (userInfo, channel) => {
+
         var channelName = channel
         $("#channelName").html("#"+channelName)
+        window.location.hash = channelName;
 
 
         // open the camera and mic, display your local video, and
@@ -274,16 +279,22 @@
 
       }
       const populateChannels = () => {
+        /* channel browse UI out of scope for MVP
         arweaveManager._allChannels.forEach(c => {
           $("#channels").append(`<li class="list-group-item"><a href="#${c.name}">#${c.name}</a></li>`)
-        })
+        }) */
+
       }
       const doLogin = async(user, channelToJoin) => {
         $(".logged-out").hide()
         $(".logged-in").show()
         window.currentUser = user
-        var allChannels=await arweaveManager.getAllChannels()
-        populateChannels(allChannels)
+        $(".persona-link").attr("href", "@"+user.name)
+        $(".persona-link").html("@"+ user.name)
+
+        $(".persona-username").html(user.name)
+        //var allChannels=await arweaveManager.getAllChannels()
+        //populateChannels(allChannels)
         openChannel(window.currentUser, channelToJoin || "lobby")
       }
       const anonymousLogin = () => {
@@ -291,8 +302,27 @@
         doLogin({name: name})
       }
 
+      //for user convenience, we save your login in your browser
+      //and try to load it now, to save you the trouble :)
+      const attemptAutomaticLogin = () => {
+        try {
+          var savedPersona = JSON.parse(localStorage.getItem("AR_PERMANENT_PERSONA"))
+          if (savedPersona && savedPersona.name) {
+            doLogin(savedPersona); 
+            return true;
+          }
+        }
+        catch(e) {}
+        return false
+      }
+      const logout = () => {
+        localStorage.setItem("AR_PERMANENT_PERSONA", "")
+        location.reload()
+      }
       $(document).ready(() => {   
         window.arweaveManager = ServerlessSignalHub.arweaveManager(APP_ID)
+        attemptAutomaticLogin()
+
         $("#wallet-file").on("change", (e) => {
           const selectedFile = document.querySelector('#wallet-file').files[0];
 
@@ -304,7 +334,7 @@
               } else {
                   console.log("got persona from blockchain: "+persona)
                   alert("Signed in as "+persona.name)
-                  localStorage.setItem("AR_PERMANENT_PERSONA", persona)
+                  localStorage.setItem("AR_PERMANENT_PERSONA", JSON.stringify(persona))
                   doLogin(persona)
               }
             })
@@ -314,6 +344,10 @@
 
         $("#no-login").on("click", (e) => {
           anonymousLogin()
+          e.preventDefault()
+        })
+        $(".login-refresh-btn").on("click", (e) => {
+          logout()
           e.preventDefault()
         })
 

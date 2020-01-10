@@ -6837,9 +6837,12 @@ exports.default = Wallets;
             <div class="form-row">
               <div class="col-7">
                 <i>
-                  By submitting this form, I understand that I am creating a permanent record containing: my arweave wallet address, my chosen username, 
-                  and an optional description. Please note that your username will also be your default channel name (you can make more channels later). 
-                  It will take a few minutes before you show up in the channel guide, but you can use the app immediately. 
+                  By submitting this form, I understand that I am creating a permanent record containing: my arweave  address, my chosen username, 
+                  and an optional description. Please note that your username will also be your channel name (you can make more channels later). 
+
+                  It will take a few minutes for the changes to be 
+                  permanently written to the arweave, but you can 
+                  use your channel immediately. 
                 </i>
               </div>
               <div class="col-3">
@@ -6859,10 +6862,9 @@ exports.default = Wallets;
 
         <!-- Show current login status and available top level actions -->
         <form class="form-inline logged-in hidden">
-          <a class="persona-link" target="_blank" href="https://viewblock.io/arweave/tx/">@username (Click To Verify)</a>&nbsp;&nbsp;
-          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-            Create Channel
-          </button>
+          Logged In As: 
+          <a class="persona-link" target="_blank" href="#"></a>
+
           <button class="btn btn-outline-success my-2 my-sm-0" type="button" id="logout">Log Out</button>
         </form>
         <form class="form-inline logged-out">
@@ -7020,8 +7022,10 @@ exports.default = Wallets;
         return false
       }
       const openChannel= (userInfo, channel) => {
+
         var channelName = channel
         $("#channelName").html("#"+channelName)
+        window.location.hash = channelName;
 
 
         // open the camera and mic, display your local video, and
@@ -7068,16 +7072,18 @@ exports.default = Wallets;
 
       }
       const populateChannels = () => {
+        /* channel browse UI out of scope for MVP
         arweaveManager._allChannels.forEach(c => {
           $("#channels").append(`<li class="list-group-item"><a href="#${c.name}">#${c.name}</a></li>`)
-        })
+        }) */
+
       }
       const doLogin = async(user, channelToJoin) => {
         $(".logged-out").hide()
         $(".logged-in").show()
         window.currentUser = user
-        var allChannels=await arweaveManager.getAllChannels()
-        populateChannels(allChannels)
+        //var allChannels=await arweaveManager.getAllChannels()
+        //populateChannels(allChannels)
         openChannel(window.currentUser, channelToJoin || "lobby")
       }
       const anonymousLogin = () => {
@@ -7085,8 +7091,24 @@ exports.default = Wallets;
         doLogin({name: name})
       }
 
+      //for user convenience, we save your login in your browser
+      //and try to load it now, to save you the trouble :)
+      const attemptAutomaticLogin = () => {
+        var savedPersona = localStorage.getItem("AR_PERMANENT_PERSONA")
+        if (savedPersona && savedPersona != null) {
+          doLogin(savedPersona); 
+          return true;
+        }
+        return false
+      }
+      const logout = () => {
+        localStorage.setItem("AR_PERMANENT_PERSONA", null)
+        location.href.reload()
+      }
       $(document).ready(() => {   
         window.arweaveManager = ServerlessSignalHub.arweaveManager(APP_ID)
+        attemptAutomaticLogin()
+
         $("#wallet-file").on("change", (e) => {
           const selectedFile = document.querySelector('#wallet-file').files[0];
 
